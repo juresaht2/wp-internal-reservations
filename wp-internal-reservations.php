@@ -7,17 +7,40 @@ Version: 0.1
 Author: Jure Sah (T-2)
 Author URI: https://canary.t-2.com/sis/messages/@juresah
 License: Proprietary
-Based on: https://www.smashingmagazine.com/2012/05/wordpress-shortcodes-complete-guide/
+Based on: https://github.com/Serhioromano/bootstrap-calendar
 */
 
-//render calendar
-function wpir_render() {
-	return "Tu pride koledar za rezervacije...";
+class wp_internal_reservations {
+
+	function __construct() {
+		add_action('init', array($this, 'register'));
+		add_action('wp_enqueue_scripts', array($this, 'enqueue'));
+	}
+
+	//shortcode registration
+	function register() {
+		add_shortcode('internal-reservations', array($this, 'render'));
+	}
+
+	//register CSS and javascript
+	function enqueue() {
+		wp_enqueue_style('bootstrap', plugins_url('css/bootstrap.min.css', __FILE__));
+		wp_enqueue_style('wpir-calendar', plugins_url('css/calendar.min.css', __FILE__));
+
+		wp_enqueue_script('underscore', plugins_url('js/underscore-min.js', __FILE__));
+		wp_enqueue_script('wpir-calendar-SI', plugins_url('js/language/sl-SL.js', __FILE__));
+		wp_enqueue_script('wpir-calendar', plugins_url('js/calendar.min.js', __FILE__));
+
+		//TODO: app.js and events feed (https://codex.wordpress.org/AJAX_in_Plugins)
+	}
+
+	//render calendar
+	function render() {
+		ob_start();
+			?>Dela!<div id="calendar"></div><?php
+		return ob_get_clean();
+	}
+
 }
 
-//shortcode registration
-function wpir_register() {
-	add_shortcode('internal-reservations', 'wpir_render');
-}
-
-add_action('init', 'wpir_register');
+new wp_internal_reservations;
