@@ -84,7 +84,7 @@ class wp_internal_reservations {
 			$data = date('Y-m-d', strtotime("+".$i." days"));
 			$out[] = array(
 				'id' => $i,
-				'title' => 'Event name '.$i,
+				'title' => 'Vzorec '.$i,
 				'url' => "#",
 				'class' => 'event-important',
 				'start' => strtotime($data).'000'
