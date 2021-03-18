@@ -26,33 +26,45 @@ class wp_internal_reservations {
 	//register CSS and javascript
 	function enqueue() {
 		wp_register_style('bootstrap', 
-			plugins_url('css/bootstrap.min.css', __FILE__)
+			plugins_url('css/bootstrap.min.css', __FILE__),
+			array(),
+			filemtime(dirname(__FILE__).'/css/bootstrap.min.css')
 		);
-
 		wp_enqueue_style('wpir-calendar', 
 			plugins_url('css/calendar.min.css', __FILE__),
-			array('bootstrap')
+			array('bootstrap'),
+			filemtime(dirname(__FILE__).'/css/calendar.min.css')
 		);
 
+		//this is technically not needed, already provided
 		wp_register_script('underscore', 
-			plugins_url('js/underscore-min.js', __FILE__)
+			plugins_url('js/underscore-min.js', __FILE__),
+			array(),
+			filemtime(dirname(__FILE__).'/js/underscore-min.js')
 		);
+
 		wp_register_script('bootstrap', 
 			plugins_url('js/bootstrap.min.js', __FILE__),
-			array('jquery-core')
+			array('jquery-core'),
+			filemtime(dirname(__FILE__).'/js/bootstrap.min.js')
 		);
 
 		wp_register_script('wpir-calendar-SI', 
-			plugins_url('js/language/sl-SL.js', __FILE__)
+			plugins_url('js/language/sl-SL.js', __FILE__),
+			array('jquery-core', 'bootstrap', 'underscore'),
+			filemtime(dirname(__FILE__).'/js/language/sl-SL.js')
 		);
 		wp_register_script('wpir-calendar', 
 			plugins_url('js/calendar.js', __FILE__),
-			array('jquery-core', 'bootstrap', 'underscore', 'wpir-calendar-SI')
+			array('jquery-core', 'bootstrap', 'underscore', 'wpir-calendar-SI'),
+			filemtime(dirname(__FILE__).'/js/calendar.js')
 		);
 
 		wp_enqueue_script('wpir-calendar-app',
 			plugins_url('js/app.js', __FILE__),
-			array('wpir-calendar')
+			array('wpir-calendar'),
+			filemtime(dirname(__FILE__).'/js/app.js'),
+			true
 		);
 
     wp_localize_script('wpir-calendar-app', 
@@ -90,7 +102,7 @@ class wp_internal_reservations {
 	//render calendar
 	function render() {
 		ob_start();
-			?>Dela!<div id="calendar"></div><?php
+			?><div id="wpir-calendar"></div><?php
 		return ob_get_clean();
 	}
 
