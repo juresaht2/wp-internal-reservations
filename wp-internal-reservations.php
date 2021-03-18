@@ -15,6 +15,7 @@ class wp_internal_reservations {
 	function __construct() {
 		add_action('init', array($this, 'register'));
 		add_action('wp_enqueue_scripts', array($this, 'enqueue'));
+		add_action('wp_ajax_wipr_events', array($this, 'ajax'));
 	}
 
 	//shortcode registration
@@ -40,11 +41,20 @@ class wp_internal_reservations {
 			plugins_url('js/language/sl-SL.js', __FILE__)
 		);
 		wp_enqueue_script('wpir-calendar', 
-			plugins_url('js/calendar.min.js', __FILE__),
+			plugins_url('js/calendar.js', __FILE__),
 			array('jquery-core', 'underscore', 'wpir-calendar-SI')
 		);
 
 		//TODO: app.js and events feed (https://codex.wordpress.org/AJAX_in_Plugins)
+	}
+
+	function ajax() {
+    $data = array(
+			'tag' => date(),
+    );
+    wp_send_json( $data );
+
+		wp_die();
 	}
 
 	//render calendar
