@@ -5,7 +5,7 @@
 	var options = {
 		events_source: wordpress.ajax_url,
 		view: 'month',
-		tmpl_path: 'tmpls/',
+		tmpl_path: wordpress.tmpl_url,
 		tmpl_cache: false,
 		day: '2013-03-12',
 		onAfterEventsLoad: function(events) {

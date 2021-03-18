@@ -37,12 +37,17 @@ class wp_internal_reservations {
 		wp_register_script('underscore', 
 			plugins_url('js/underscore-min.js', __FILE__)
 		);
+		wp_register_script('bootstrap', 
+			plugins_url('js/bootstrap.min.js', __FILE__),
+			array('jquery-core')
+		);
+
 		wp_register_script('wpir-calendar-SI', 
 			plugins_url('js/language/sl-SL.js', __FILE__)
 		);
 		wp_register_script('wpir-calendar', 
 			plugins_url('js/calendar.js', __FILE__),
-			array('jquery-core', 'underscore', 'wpir-calendar-SI')
+			array('jquery-core', 'bootstrap', 'underscore', 'wpir-calendar-SI')
 		);
 
 		wp_enqueue_script('wpir-calendar-app',
@@ -52,16 +57,32 @@ class wp_internal_reservations {
 
     wp_localize_script('wpir-calendar-app', 
     	'wordpress',
-      array('ajax_url' => admin_url('admin-ajax.php'))
+      array(
+      	'ajax_url' => admin_url('admin-ajax.php'),
+      	'tmpl_url' => plugins_url('tmpls', __FILE__).'/'
+      )
     );
 
 	}
 
 	function ajax() {
-    $data = array(
-			'tag' => date(),
-    );
-    wp_send_json( $data );
+		$out = array();
+
+		for($i = 1; $i <= 15; $i++) { 	//from day 01 to day 15
+			$data = date('Y-m-d', strtotime("+".$i." days"));
+			$out[] = array(
+				'id' => $i,
+				'title' => 'Event name '.$i,
+				'url' => "#",
+				'class' => 'event-important',
+				'start' => strtotime($data).'000'
+			);
+		}
+
+		wp_send_json(array(
+			'success' => 1,
+			'result' => $out
+		));
 
 		wp_die();
 	}
