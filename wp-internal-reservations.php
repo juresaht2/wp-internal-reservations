@@ -103,7 +103,24 @@ class wp_internal_reservations {
 	function render() {
 		wp_enqueue_style('wpir-calendar');
 		wp_enqueue_script('wpir-calendar-app');
-		return '<div id="wpir-calendar"></div>';
+		ob_start(); ?>
+
+<div class="pull-right form-inline">
+	<div class="btn-group">
+		<button class="btn" data-calendar-nav="prev">&lt;&lt; Nazaj</button>
+		<button class="btn" data-calendar-nav="today">Trenutni</button>
+		<button class="btn" data-calendar-nav="next">Naprej &gt;&gt;</button>
+	</div>
+	<div class="btn-group">
+		<button class="btn" data-calendar-view="year">Leto</button>
+		<button class="btn active" data-calendar-view="month">Mesec</button>
+		<button class="btn" data-calendar-view="day">Dan</button>
+	</div>
+</div>
+<h3 id="wpir-calendar-title"></h3>
+<div style="clear: both;"><br></div>
+<div id="wpir-calendar"></div><?php
+		return ob_get_clean();
 	}
 
 }
