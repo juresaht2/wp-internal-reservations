@@ -30,7 +30,7 @@ class wp_internal_reservations {
 			array(),
 			filemtime(dirname(__FILE__).'/css/bootstrap.min.css')
 		);
-		wp_enqueue_style('wpir-calendar', 
+		wp_register_style('wpir-calendar', 
 			plugins_url('css/calendar.min.css', __FILE__),
 			array('bootstrap'),
 			filemtime(dirname(__FILE__).'/css/calendar.min.css')
@@ -60,7 +60,7 @@ class wp_internal_reservations {
 			filemtime(dirname(__FILE__).'/js/calendar.js')
 		);
 
-		wp_enqueue_script('wpir-calendar-app',
+		wp_register_script('wpir-calendar-app',
 			plugins_url('js/app.js', __FILE__),
 			array('wpir-calendar'),
 			filemtime(dirname(__FILE__).'/js/app.js'),
@@ -101,9 +101,9 @@ class wp_internal_reservations {
 
 	//render calendar
 	function render() {
-		ob_start();
-			?><div id="wpir-calendar"></div><?php
-		return ob_get_clean();
+		wp_enqueue_style('wpir-calendar');
+		wp_enqueue_script('wpir-calendar-app');
+		return '<div id="wpir-calendar"></div>';
 	}
 
 }
