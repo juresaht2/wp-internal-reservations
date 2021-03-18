@@ -24,12 +24,25 @@ class wp_internal_reservations {
 
 	//register CSS and javascript
 	function enqueue() {
-		wp_enqueue_style('bootstrap', plugins_url('css/bootstrap.min.css', __FILE__));
-		wp_enqueue_style('wpir-calendar', plugins_url('css/calendar.min.css', __FILE__));
+		wp_register_style('bootstrap', 
+			plugins_url('css/bootstrap.min.css', __FILE__)
+		);
 
-		wp_enqueue_script('underscore', plugins_url('js/underscore-min.js', __FILE__));
-		wp_enqueue_script('wpir-calendar-SI', plugins_url('js/language/sl-SL.js', __FILE__));
-		wp_enqueue_script('wpir-calendar', plugins_url('js/calendar.min.js', __FILE__));
+		wp_enqueue_style('wpir-calendar', 
+			plugins_url('css/calendar.min.css', __FILE__),
+			array('bootstrap')
+		);
+
+		wp_register_script('underscore', 
+			plugins_url('js/underscore-min.js', __FILE__)
+		);
+		wp_register_script('wpir-calendar-SI', 
+			plugins_url('js/language/sl-SL.js', __FILE__)
+		);
+		wp_enqueue_script('wpir-calendar', 
+			plugins_url('js/calendar.min.js', __FILE__),
+			array('jquery-core', 'underscore', 'wpir-calendar-SI')
+		);
 
 		//TODO: app.js and events feed (https://codex.wordpress.org/AJAX_in_Plugins)
 	}
