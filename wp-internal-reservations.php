@@ -31,9 +31,9 @@ class wp_internal_reservations {
 			filemtime(dirname(__FILE__).'/css/bootstrap.min.css')
 		);
 		wp_register_style('wpir-calendar', 
-			plugins_url('css/calendar.min.css', __FILE__),
+			plugins_url('css/calendar.css', __FILE__),
 			array('bootstrap'),
-			filemtime(dirname(__FILE__).'/css/calendar.min.css')
+			filemtime(dirname(__FILE__).'/css/calendar.css')
 		);
 
 		//this is technically not needed, already provided
