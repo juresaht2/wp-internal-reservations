@@ -40,12 +40,21 @@ class wp_internal_reservations {
 		wp_register_script('wpir-calendar-SI', 
 			plugins_url('js/language/sl-SL.js', __FILE__)
 		);
-		wp_enqueue_script('wpir-calendar', 
+		wp_register_script('wpir-calendar', 
 			plugins_url('js/calendar.js', __FILE__),
 			array('jquery-core', 'underscore', 'wpir-calendar-SI')
 		);
 
-		//TODO: app.js and events feed (https://codex.wordpress.org/AJAX_in_Plugins)
+		wp_enqueue_script('wpir-calendar-app',
+			plugins_url('js/app.js', __FILE__),
+			array('wpir-calendar')
+		);
+
+    wp_localize_script('wpir-calendar-app', 
+    	'wordpress',
+      array('ajax_url' => admin_url('admin-ajax.php'))
+    );
+
 	}
 
 	function ajax() {

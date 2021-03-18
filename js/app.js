@@ -3,7 +3,7 @@
 	"use strict";
 
 	var options = {
-		events_source: 'wp-admin/admin-ajax.php',
+		events_source: wordpress.ajax_url,
 		view: 'month',
 		tmpl_path: 'tmpls/',
 		tmpl_cache: false,

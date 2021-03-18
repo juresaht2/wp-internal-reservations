@@ -968,7 +968,8 @@ if(!String.prototype.formatNum) {
 						$.ajax({
 							url: buildEventsUrl(source, params),
 							dataType: 'json',
-							type: 'GET',
+							type: 'POST',
+							data: {'action': 'wipr_events'},
 							async: false,
 							headers: self.options.headers,
 						}).done(function(json) {
