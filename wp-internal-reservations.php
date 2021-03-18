@@ -100,7 +100,11 @@ class wp_internal_reservations {
 	}
 
 	//render calendar
-	function render() {
+	function render($attr) {
+		if(isset($attr['ime'])) {
+			wp_localize_script('wpir-calendar-app', 'wpir-calendar-app', $attr);
+		}
+
 		wp_enqueue_style('wpir-calendar');
 		wp_enqueue_script('wpir-calendar-app');
 		ob_start(); ?>
