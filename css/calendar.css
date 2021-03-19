@@ -512,3 +512,24 @@ a.cal-event-week {
 .badge-important {
   background-color: #b94a48;
 }
+
+#wpir-calendar-overlay {
+  display: none;
+  background: rgba(64, 64, 64, 0.7);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+}
+
+#wpir-calendar-edit-box {
+  background: white;
+  position: absolute;
+  left: 20%;
+  top: 20%;
+  width: 60%;
+  height: 60%;  
+  z-index: 200;
+}

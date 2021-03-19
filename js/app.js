@@ -23,6 +23,19 @@
 
 	var calendar = $('#wpir-calendar').calendar(options);
 
+	$('.btn-group button[data-calendar-edit]').each(function() {
+		var $this = $(this);
+		$this.click(function() {
+			$('#wpir-calendar-overlay').show();
+		});
+	});
+
+  $('#wpir-calendar-overlay').on('click', function() {
+    if(!$(event.target).is('#wpir-calendar-edit-box')) {
+      $('#wpir-calendar-overlay').hide();
+    }
+  });	
+
 	$('.btn-group button[data-calendar-nav]').each(function() {
 		var $this = $(this);
 		$this.click(function() {

@@ -15,9 +15,13 @@ class wp_internal_reservations {
 	function __construct() {
 		add_action('init', array($this, 'register'));
 		add_action('wp_enqueue_scripts', array($this, 'enqueue'));
-		add_action('wp_ajax_wpir_events', array($this, 'ajax'));
 		//nopriv is okay since the whole site is authenticated
+
+		add_action('wp_ajax_wpir_events', array($this, 'ajax'));
 		add_action('wp_ajax_nopriv_wpir_events', array($this, 'ajax'));
+
+		add_action('wp_ajax_wpir_edit_prompt', array($this, 'ajax_edit_prompt'));
+		add_action('wp_ajax_nopriv_edit_prompt', array($this, 'ajax_edit_prompt'));
 	}
 
 	//shortcode registration
@@ -101,6 +105,21 @@ class wp_internal_reservations {
 		wp_die();
 	}
 
+	function ajax_edit_prompt() {
+		ob_start(); ?>
+
+		<p>Test</p>
+
+		<?php
+		wp_send_json(array(
+			'success' => 1,
+			'html' => ob_get_clean()
+		));
+
+		wp_die();
+	}
+
+
 	//render calendar
 	function render($attr = array()) {
 		wp_localize_script('wpir-calendar-app', 'wpir_special', $attr);
@@ -110,6 +129,10 @@ class wp_internal_reservations {
 		ob_start(); ?>
 
 <div class="pull-right form-inline">
+	<div class="btn-group">
+		<button class="btn btn-success" data-calendar-edit="add">Dodaj rezervacijo</button>
+button>
+	</div>
 	<div class="btn-group">
 		<button class="btn" data-calendar-nav="prev">&lt;&lt; Nazaj</button>
 		<button class="btn" data-calendar-nav="today">Trenutni</button>
@@ -123,7 +146,13 @@ class wp_internal_reservations {
 </div>
 <h3 id="wpir-calendar-title"></h3>
 <div style="clear: both;"><br></div>
-<div id="wpir-calendar">Koledar se nalaga...</div><?php
+<div id="wpir-calendar">Koledar se nalaga...</div>
+
+
+<div id="wpir-calendar-overlay">
+	<div id="wpir-calendar-edit-box">
+	</div>
+</div><?php
 		return ob_get_clean();
 	}
 
