@@ -969,7 +969,7 @@ if(!String.prototype.formatNum) {
 							url: buildEventsUrl(source, params),
 							dataType: 'json',
 							type: 'POST',
-							data: {'action': 'wipr_events'},
+							data: {'action': 'wpir_events', 'special': wpir_special},
 							async: false,
 							headers: self.options.headers,
 						}).done(function(json) {

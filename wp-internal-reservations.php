@@ -15,7 +15,9 @@ class wp_internal_reservations {
 	function __construct() {
 		add_action('init', array($this, 'register'));
 		add_action('wp_enqueue_scripts', array($this, 'enqueue'));
-		add_action('wp_ajax_wipr_events', array($this, 'ajax'));
+		add_action('wp_ajax_wpir_events', array($this, 'ajax'));
+		//nopriv is okay since the whole site is authenticated
+		add_action('wp_ajax_nopriv_wpir_events', array($this, 'ajax'));
 	}
 
 	//shortcode registration
@@ -100,10 +102,8 @@ class wp_internal_reservations {
 	}
 
 	//render calendar
-	function render($attr) {
-		if(isset($attr['ime'])) {
-			wp_localize_script('wpir-calendar-app', 'wpir-calendar-app', $attr);
-		}
+	function render($attr = array()) {
+		wp_localize_script('wpir-calendar-app', 'wpir_special', $attr);
 
 		wp_enqueue_style('wpir-calendar');
 		wp_enqueue_script('wpir-calendar-app');
@@ -123,7 +123,7 @@ class wp_internal_reservations {
 </div>
 <h3 id="wpir-calendar-title"></h3>
 <div style="clear: both;"><br></div>
-<div id="wpir-calendar"></div><?php
+<div id="wpir-calendar">Koledar se nalaga...</div><?php
 		return ob_get_clean();
 	}
 
