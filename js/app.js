@@ -23,11 +23,14 @@
 
 	var calendar = $('#wpir-calendar').calendar(options);
 
+	window.wpir_edit_box = function(e) {
+		alert(e.data.id);
+		$('#wpir-calendar-overlay').show();
+	}
+
 	$('.btn-group button[data-calendar-edit]').each(function() {
 		var $this = $(this);
-		$this.click(function() {
-			$('#wpir-calendar-overlay').show();
-		});
+		$this.click({id: 0}, window.wpir_edit_box);
 	});
 
   $('#wpir-calendar-overlay').on('click', function() {

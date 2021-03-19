@@ -91,7 +91,9 @@ class wp_internal_reservations {
 			$out[] = array(
 				'id' => $i,
 				'title' => 'Vzorec '.$i,
-				'url' => "#",
+				'url' => "javascript:window.wpir_edit_box(".str_replace('"', "'", json_encode(
+					(object) array("data" => array("id" => $i))
+				)).")",
 				'class' => 'event-important',
 				'start' => strtotime($data).'000'
 			);
