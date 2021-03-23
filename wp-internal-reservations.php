@@ -39,12 +39,13 @@ class wp_internal_reservations {
 
 			$wpdb->query("
 				CREATE TABLE `".$wpdb->prefix."internal_reservations` (
-				  `calendar` varchar(255) NOT NULL,
-				  `user` varchar(255) NOT NULL,
-				  `from` datetime NOT NULL,
+				  `id` int(11) NOT NULL AUTO_INCREMENT,
+				  `calendar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+				  `user` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+				  `from` datetime DEFAULT NULL,
 				  `until` datetime DEFAULT NULL,
-				  `title` text DEFAULT NULL,
-				  PRIMARY KEY (`calendar`,`user`,`from`)
+				  `title` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+				  PRIMARY KEY (`id`)
 				) ENGINE=InnoDB ".$wpdb->get_charset_collate().";
 			");
 		}
@@ -105,19 +106,32 @@ class wp_internal_reservations {
 	}
 
 	function ajax() {
-		$out = array();
+		global $wpdb;
 
-		for($i = 1; $i <= 15; $i++) { 	//from day 01 to day 15
-			$data = date('Y-m-d', strtotime("+".$i." days"));
+		$out = array();
+		foreach($wpdb->get_results($wpdb->prepare("
+			SELECT `id`, `from`, `until`, `user`, `title`
+			  FROM `".$wpdb->prefix."internal_reservations`
+			 WHERE `calendar` = %s
+			 ORDER BY `id` DESC
+			 LIMIT 10000
+		", array($_POST["special"]["ime"])), ARRAY_A) as $event) {
+
+			$title = $event["title"].
+				" od ".date("j. n. Y H:i", strtotime($event["from"])).
+				" do ".date("j. n. Y H:i", strtotime($event["until"]));
+
 			$out[] = array(
-				'id' => $i,
-				'title' => 'Vzorec '.$i,
+				'id' => $event["id"],
+				'title' => $title,
 				'url' => "javascript:window.wpir_edit_box(".str_replace('"', "'", json_encode(
-					(object) array("data" => array("id" => $i))
+					(object) array("data" => array("id" => $event["id"]))
 				)).")",
 				'class' => 'event-important',
-				'start' => strtotime($data).'000'
+				'start' => strtotime($event["from"]).'000',
+				'end' => strtotime($event["until"]).'000'
 			);
+
 		}
 
 		wp_send_json(array(
