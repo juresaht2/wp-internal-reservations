@@ -24,9 +24,12 @@
 	var calendar = $('#wpir-calendar').calendar(options);
 
 	window.wpir_edit_box = function(e) {
-		alert(e.data.id);
 		$('#wpir-calendar-overlay').show();
+		alert(e.data.id);
+		/* TODO: this should fill the details of an edited or blank entry */
 	}
+
+	/* TODO: https://stackoverflow.com/a/6960586/2897386 */
 
 	$('.btn-group button[data-calendar-edit]').each(function() {
 		var $this = $(this);
@@ -34,7 +37,7 @@
 	});
 
   $('#wpir-calendar-overlay').on('click', function() {
-    if(!$(event.target).is('#wpir-calendar-edit-box')) {
+    if($(event.target).is('#wpir-calendar-overlay')) {
       $('#wpir-calendar-overlay').hide();
     }
   });	

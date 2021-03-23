@@ -143,14 +143,13 @@ class wp_internal_reservations {
 	}
 
 	function ajax_edit_prompt() {
-		ob_start(); ?>
 
-		<p>Test</p>
+		//TODO: This needs to be reworked into two AJAX calls:
+		//1. to retrieve the details of one event (by calendar name and ID)
+		//2. to save a changed event, permissions allowing
 
-		<?php
 		wp_send_json(array(
-			'success' => 1,
-			'html' => ob_get_clean()
+			'success' => 1
 		));
 
 		wp_die();
@@ -163,12 +162,16 @@ class wp_internal_reservations {
 
 		wp_enqueue_style('wpir-calendar');
 		wp_enqueue_script('wpir-calendar-app');
+
+		global $current_user;
+    wp_get_current_user();
+    $calendar = $attr["ime"];
+
 		ob_start(); ?>
 
 <div class="pull-right form-inline">
 	<div class="btn-group">
 		<button class="btn btn-success" data-calendar-edit="add">Dodaj rezervacijo</button>
-button>
 	</div>
 	<div class="btn-group">
 		<button class="btn" data-calendar-nav="prev">&lt;&lt; Nazaj</button>
@@ -188,6 +191,40 @@ button>
 
 <div id="wpir-calendar-overlay">
 	<div id="wpir-calendar-edit-box">
+		<form>
+			<input type="hidden" name="id" value="0">
+			<input type="hidden" name="user" value="<?php echo $current_user->user_login; ?>">
+			<table class='table borderless'>
+				<thead>
+					<tr>
+						<td></td>
+						<td><h3>Vnos rezervacije</h3></td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th>Koledar: </th>
+						<td><input type="text" name="calendar" disabled value="<?php echo $calendar; ?>"></td>
+					</tr>
+					<tr>
+						<th>Naslov: </th>
+						<td><input type="text" name="title"></td>
+					</tr>
+					<tr>
+						<th>Od: </th>
+						<td><input type="datetime-local" name="from"></td>
+					</tr>
+					<tr>
+						<th>Do: </th>
+						<td><input type="datetime-local" name="until"></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><button type="submit" class="btn btn-primary" value="1">Shrani</button></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
 	</div>
 </div><?php
 		return ob_get_clean();
