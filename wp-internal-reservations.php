@@ -14,6 +14,8 @@ class wp_internal_reservations {
 
 	function __construct() {
 		add_action('init', array($this, 'register'));
+		register_activation_hook(__FILE__, array($this, 'activate'));
+
 		add_action('wp_enqueue_scripts', array($this, 'enqueue'));
 		//nopriv is okay since the whole site is authenticated
 
@@ -22,11 +24,30 @@ class wp_internal_reservations {
 
 		add_action('wp_ajax_wpir_edit_prompt', array($this, 'ajax_edit_prompt'));
 		add_action('wp_ajax_nopriv_edit_prompt', array($this, 'ajax_edit_prompt'));
+
 	}
 
 	//shortcode registration
 	function register() {
 		add_shortcode('internal-reservations', array($this, 'render'));
+	}
+
+	function activate() {
+		global $wpdb;
+
+		if(!in_array($wpdb->prefix."internal_reservations", $wpdb->get_col("SHOW TABLES;"))) {
+
+			$wpdb->query("
+				CREATE TABLE `".$wpdb->prefix."internal_reservations` (
+				  `calendar` varchar(255) NOT NULL,
+				  `user` varchar(255) NOT NULL,
+				  `from` datetime NOT NULL,
+				  `until` datetime DEFAULT NULL,
+				  `title` text DEFAULT NULL,
+				  PRIMARY KEY (`calendar`,`user`,`from`)
+				) ENGINE=InnoDB ".$wpdb->get_charset_collate().";
+			");
+		}
 	}
 
 	//register CSS and javascript
