@@ -146,12 +146,42 @@ class wp_internal_reservations {
 
 	function ajax_edit_get() {
 		//1. to retrieve the details of one event (by calendar name and ID)
+		$id = (int) $_POST["data"]["id"];
+
+		global $current_user;
+		wp_get_current_user();
+
+		if($id > 0) {
+
+			global $wpdb;
+
+			$data = $wpdb->get_row($wpdb->prepare("
+				SELECT `from`, `until`, `user`, `title`
+				  FROM `".$wpdb->prefix."internal_reservations`
+				 WHERE `id` = %d
+				 LIMIT 1
+			", array($id)), ARRAY_A);
+
+			$title = $data["title"];
+			$from = strtotime($data["from"]);
+			$until = strtotime($data["until"]);
+			$editable = ($data["user"] == $current_user->user_login || current_user_can('administrator'));
+
+		} else {
+
+			$title = $current_user->user_firstname." ".$current_user->user_lastname." rezervacija";
+			$from = strtotime(date("Y-m-d 0:00", strtotime("tomorrow")));
+			$until = strtotime(date("Y-m-d 23:59", strtotime("tomorrow")));
+			$editable = True;
+
+		}
 
 		wp_send_json(array(
-			'id' => 1,
-			'title' => "Test",
-			'from' => date('Y-m-d\TH:i'),
-			'until' => date('Y-m-d\TH:i'),
+			'id' => $id,
+			'title' => $title,
+			'from' => date('Y-m-d\TH:i', $from),
+			'until' => date('Y-m-d\TH:i', $until),
+			'editable' => $editable
 		));
 
 		wp_die();
