@@ -22,8 +22,10 @@ class wp_internal_reservations {
 		add_action('wp_ajax_wpir_events', array($this, 'ajax'));
 		add_action('wp_ajax_nopriv_wpir_events', array($this, 'ajax'));
 
-		add_action('wp_ajax_wpir_edit_prompt', array($this, 'ajax_edit_prompt'));
-		add_action('wp_ajax_nopriv_edit_prompt', array($this, 'ajax_edit_prompt'));
+		add_action('wp_ajax_wpir_edit_get', array($this, 'ajax_edit_get'));
+		add_action('wp_ajax_nopriv_edit_get', array($this, 'ajax_edit_get'));
+		add_action('wp_ajax_wpir_edit_set', array($this, 'ajax_edit_set'));
+		add_action('wp_ajax_nopriv_edit_set', array($this, 'ajax_edit_set'));
 
 	}
 
@@ -142,19 +144,28 @@ class wp_internal_reservations {
 		wp_die();
 	}
 
-	function ajax_edit_prompt() {
-
-		//TODO: This needs to be reworked into two AJAX calls:
+	function ajax_edit_get() {
 		//1. to retrieve the details of one event (by calendar name and ID)
-		//2. to save a changed event, permissions allowing
 
 		wp_send_json(array(
-			'success' => 1
+			'id' => 1,
+			'title' => "Test",
+			'from' => date('Y-m-d\TH:i'),
+			'until' => date('Y-m-d\TH:i'),
 		));
 
 		wp_die();
 	}
 
+	function ajax_edit_set() {
+		//2. to save a changed event, permissions allowing
+
+		wp_send_json(array(
+			'success' => $_POST["data"]
+		));
+
+		wp_die();
+	}
 
 	//render calendar
 	function render($attr = array()) {
@@ -220,7 +231,7 @@ class wp_internal_reservations {
 					</tr>
 					<tr>
 						<td></td>
-						<td><button type="submit" class="btn btn-primary" value="1">Shrani</button></td>
+						<td><button id="wpir-calendar-submit" type="submit" class="btn btn-primary" value="1">Shrani</button></td>
 					</tr>
 				</tbody>
 			</table>
