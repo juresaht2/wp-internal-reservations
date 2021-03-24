@@ -145,7 +145,6 @@ class wp_internal_reservations {
 	}
 
 	function ajax_edit_get() {
-		//1. to retrieve the details of one event (by calendar name and ID)
 		$id = (int) $_POST["data"]["id"];
 
 		global $current_user;
@@ -188,10 +187,81 @@ class wp_internal_reservations {
 	}
 
 	function ajax_edit_set() {
-		//2. to save a changed event, permissions allowing
+		//un-serializeArray
+		$data = array();
+		foreach($_POST["data"] as $item) {
+			$data[$item["name"]] = $item["value"];
+		}
+
+		global $wpdb;
+
+		global $current_user;
+		wp_get_current_user();
+
+		$id = (int) $data["id"];
+		if($id > 0) {
+			//editing existing entry
+
+			$existing_username = $wpdb->get_var($wpdb->prepare("
+				SELECT `user`
+				  FROM `".$wpdb->prefix."internal_reservations`
+				 WHERE `id` = %d
+				 LIMIT 1
+			", array($id)));
+
+			if($existing_username == $current_user->user_login || current_user_can('administrator')) {
+				$success = true;
+
+				if(trim($data["title"]) == "") {
+					//empty title means delete
+
+					$wpdb->delete(
+						$wpdb->prefix."internal_reservations",
+						array("id" => $id)
+					);
+
+				} else {
+
+					//do not replace username on edit
+					$wpdb->update(
+						$wpdb->prefix."internal_reservations",
+						array(
+							"calendar" => $data["calendar"],
+							"title" => $data["title"],
+							"from" => date("Y-m-d H:i:s", strtotime($data["from"])),
+							"until" => date("Y-m-d H:i:s", strtotime($data["until"]))
+						),
+						array("id" => $id)
+					);
+				}
+
+			} else {
+				//don't have permission to edit
+				//this should never happen normally and isn't handled
+				$success = false;
+				status_header( 403 );
+			}
+
+		} else {
+			//new entry
+
+			$success = true;
+			$wpdb->insert(
+				$wpdb->prefix."internal_reservations",
+				array(
+					"calendar" => $data["calendar"],
+					"user" => $current_user->user_login,
+					"title" => $data["title"],
+					"from" => date("Y-m-d H:i:s", strtotime($data["from"])),
+					"until" => date("Y-m-d H:i:s", strtotime($data["until"]))
+				)
+			);
+
+		}
 
 		wp_send_json(array(
-			'success' => $_POST["data"]
+			'success' => $success,
+			'newid' => $wpdb->insert_id
 		));
 
 		wp_die();
@@ -234,19 +304,18 @@ class wp_internal_reservations {
 	<div id="wpir-calendar-edit-box">
 		<form>
 			<input type="hidden" name="id" value="0">
-			<input type="hidden" name="user" value="<?php echo $current_user->user_login; ?>">
+			<input type="hidden" name="calendar" value="<?php echo $calendar; ?>">
 			<table class='table borderless'>
 				<thead>
 					<tr>
 						<td></td>
-						<td><h3>Vnos rezervacije</h3></td>
+						<td>
+							<h3>Vnos rezervacije</h3>
+							<h4><?php echo $calendar; ?></h4>
+						</td>
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<th>Koledar: </th>
-						<td><input type="text" name="calendar" disabled value="<?php echo $calendar; ?>"></td>
-					</tr>
 					<tr>
 						<th>Naslov: </th>
 						<td><input type="text" name="title"></td>
@@ -258,6 +327,10 @@ class wp_internal_reservations {
 					<tr>
 						<th>Do: </th>
 						<td><input type="datetime-local" name="until"></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><small>Namig: Če želiš pobrisati rezervacijo, izprazni naslov.</small></td>
 					</tr>
 					<tr>
 						<td></td>
