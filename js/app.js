@@ -34,6 +34,8 @@
 				$('#wpir-calendar-edit-box input[name="title"]').val(result.title);
 				$('#wpir-calendar-edit-box input[name="from"]').val(result.from);
 				$('#wpir-calendar-edit-box input[name="until"]').val(result.until);
+				$('#wpir-calendar-edit-box input[name="from"]').attr("max", result.until);
+				$('#wpir-calendar-edit-box input[name="until"]').attr("min", result.from);
 				$('#wpir-calendar-submit').prop('disabled', !result.editable);
 				$('#wpir-calendar-overlay').show();
 			}
@@ -65,7 +67,15 @@
     if($(event.target).is('#wpir-calendar-overlay')) {
       $('#wpir-calendar-overlay').hide();
     }
-  });	
+  });
+
+	$('#wpir-calendar-edit-box input[name="from"]').change(function() {
+		$('#wpir-calendar-edit-box input[name="until"]').attr("min", $(this).val());
+	});
+
+	$('#wpir-calendar-edit-box input[name="until"]').change(function() {
+		$('#wpir-calendar-edit-box input[name="from"]').attr("max", $(this).val());
+	});
 
 	$('.btn-group button[data-calendar-nav]').each(function() {
 		var $this = $(this);
