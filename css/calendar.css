@@ -545,3 +545,23 @@ a.cal-event-week {
 #wpir-calendar-edit-box input {
   width: 100%;
 }
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:visited,
+.btn-primary:focus {
+    background-color: #EF7D00;
+    border-color: #EF7D00;
+    background-image: linear-gradient(to bottom,#f58220,#EF7D00);
+}
+
+.btn-success,
+.btn-success:hover,
+.btn-success:active,
+.btn-success:visited,
+.btn-success:focus {
+    background-color: #EF7D00;
+    border-color: #EF7D00;
+    background-image: linear-gradient(to bottom,#f58220,#EF7D00);
+}
