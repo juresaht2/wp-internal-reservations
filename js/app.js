@@ -52,8 +52,12 @@
 			data: {'action': 'wpir_edit_set', 'data': $(this).serializeArray()},
 			success: function(result)
 			{
-				calendar.view(); //refresh
-				$('#wpir-calendar-overlay').hide();
+				if(result.overlap) {
+					alert("V tem terminu že obstaja rezervacija!");
+				} else {
+					calendar.view(); //refresh
+					$('#wpir-calendar-overlay').hide();
+				}
 			}
 		});
 	});	

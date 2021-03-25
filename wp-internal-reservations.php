@@ -187,6 +187,8 @@ class wp_internal_reservations {
 	}
 
 	function ajax_edit_set() {
+		ob_start();
+
 		//un-serializeArray
 		$data = array();
 		foreach($_POST["data"] as $item) {
@@ -199,6 +201,11 @@ class wp_internal_reservations {
 		wp_get_current_user();
 
 		$id = (int) $data["id"];
+		$from = strtotime($data["from"]);
+		$until = strtotime($data["until"]);
+
+		$success = false;
+		$overlap = false;
 		if($id > 0) {
 			//editing existing entry
 
@@ -210,11 +217,11 @@ class wp_internal_reservations {
 			", array($id)));
 
 			if($existing_username == $current_user->user_login || current_user_can('administrator')) {
-				$success = true;
 
 				if(trim($data["title"]) == "") {
 					//empty title means delete
 
+					$success = true;
 					$wpdb->delete(
 						$wpdb->prefix."internal_reservations",
 						array("id" => $id)
@@ -222,49 +229,78 @@ class wp_internal_reservations {
 
 				} else {
 
-					//do not replace username on edit
-					$wpdb->update(
-						$wpdb->prefix."internal_reservations",
-						array(
-							"calendar" => $data["calendar"],
-							"title" => $data["title"],
-							"from" => date("Y-m-d H:i:s", strtotime($data["from"])),
-							"until" => date("Y-m-d H:i:s", strtotime($data["until"]))
-						),
-						array("id" => $id)
-					);
+					//when checking for overlap exclude the ID we are currently editing
+					if(!$this->checkOverlap($data["calendar"], $from, $until, $id)) {
+
+						$success = true;
+						//do not replace username on edit
+						$wpdb->update(
+							$wpdb->prefix."internal_reservations",
+							array(
+								"calendar" => $data["calendar"],
+								"title" => $data["title"],
+								"from" => date("Y-m-d H:i:s", $from),
+								"until" => date("Y-m-d H:i:s", $until)
+							),
+							array("id" => $id)
+						);
+
+					} else {
+						$overlap = true;
+					}
 				}
 
 			} else {
 				//don't have permission to edit
 				//this should never happen normally and isn't handled
-				$success = false;
 				status_header( 403 );
 			}
 
 		} else {
 			//new entry
 
-			$success = true;
-			$wpdb->insert(
-				$wpdb->prefix."internal_reservations",
-				array(
-					"calendar" => $data["calendar"],
-					"user" => $current_user->user_login,
-					"title" => $data["title"],
-					"from" => date("Y-m-d H:i:s", strtotime($data["from"])),
-					"until" => date("Y-m-d H:i:s", strtotime($data["until"]))
-				)
-			);
+			if(!$this->checkOverlap($data["calendar"], $from, $until)) {
+				$success = true;
+				$wpdb->insert(
+					$wpdb->prefix."internal_reservations",
+					array(
+						"calendar" => $data["calendar"],
+						"user" => $current_user->user_login,
+						"title" => $data["title"],
+						"from" => date("Y-m-d H:i:s", $from),
+						"until" => date("Y-m-d H:i:s", $until)
+					)
+				);
+			} else {
+				$overlap = true;
+			}
 
 		}
 
 		wp_send_json(array(
 			'success' => $success,
-			'newid' => $wpdb->insert_id
+			'overlap' => $overlap,
+			'debug' => ob_get_clean()
 		));
 
 		wp_die();
+	}
+
+	private function checkOverlap($calendar, $from, $until, $exclude = 0) {
+		global $wpdb;
+
+		return ($wpdb->get_var($wpdb->prepare("
+			SELECT COUNT(*)
+			  FROM `".$wpdb->prefix."internal_reservations`
+			 WHERE `calendar` = %s
+			   AND `id` != %d
+			   AND (`from` <= %s AND `until` >= %s)
+		", array(
+			$calendar,
+			$exclude,
+			date("Y-m-d H:i:s", $until),
+			date("Y-m-d H:i:s", $from)
+		))) > 0);
 	}
 
 	//render calendar
