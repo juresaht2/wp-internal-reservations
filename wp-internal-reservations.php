@@ -59,7 +59,7 @@ class wp_internal_reservations {
 				</tr>
 			</thead>
 			<tbody style="text-align: center;">
-				<?php foreach($this->readLog() as $e) { ?>
+				<?php foreach($this->readLog(0) as $e) { ?>
 				<tr>
 					<td><?php echo date("j. n. Y H:i", $e["tds"]); ?></td>
 					<td><?php echo $e["user"]; ?></td>

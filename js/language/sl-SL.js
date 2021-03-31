@@ -106,5 +106,20 @@ window.calendar_languages['sl-SL'] = {
 	//   - Easter and the day after Easter: 'easter>easter+1'
 	//   Limitations: currently the multi-day holydays can't cross an year. So, for example, you can't specify a range as '30-12>01-01'; as a workaround you can specify two distinct holidays (for instance '30-12>31-12' and '01-01'). 
 	holidays: {
+		'01-01': 'Novo leto',
+		'02-01': 'Novo leto',
+		'08-02': 'Prešernov dan',
+		'easter': 'Velika noč',
+		'easter+1': 'Velikonočni ponedeljek',
+		'27-04': 'Dan upora proti okupatorju',
+		'01-05': 'Praznik dela',
+		'02-05': 'Praznik dela',
+		'easter+49': 'Binkošti',
+		'25-06': 'Dan državnosti',
+		'15-08': 'Marijino vnebovzetje',
+		'31-10': 'Dan reformacije',
+		'01-11': 'Dan spomina na mrtve',
+		'25-12': 'Božič',
+		'26-12': 'Dan samostojnosti in enotnosti'
 	}
 };
