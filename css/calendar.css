@@ -565,3 +565,7 @@ a.cal-event-week {
     border-color: #EF7D00;
     background-image: linear-gradient(to bottom,#f58220,#EF7D00);
 }
+
+.cal-day-weekend {
+  background-color: lightgray;
+}
