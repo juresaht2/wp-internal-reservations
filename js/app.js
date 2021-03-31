@@ -30,6 +30,7 @@
 			data: {'action': 'wpir_edit_get', 'data': e.data},
 			success: function(result)
 			{
+				console.log(result.debug);
 				$('#wpir-calendar-edit-box input[name="id"]').val(result.id);
 				$('#wpir-calendar-edit-box input[name="title"]').val(result.title);
 				$('#wpir-calendar-edit-box input[name="from"]').val(result.from);
@@ -52,6 +53,7 @@
 			data: {'action': 'wpir_edit_set', 'data': $(this).serializeArray()},
 			success: function(result)
 			{
+				console.log(result.debug);
 				if(result.overlap) {
 					alert("V tem terminu že obstaja rezervacija!");
 				} else {

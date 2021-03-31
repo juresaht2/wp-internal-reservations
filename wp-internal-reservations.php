@@ -32,6 +32,7 @@ class wp_internal_reservations {
 	//shortcode registration
 	function register() {
 		add_shortcode('internal-reservations', array($this, 'render'));
+		$this->logMaintenence();
 	}
 
 	function activate() {
@@ -42,15 +43,33 @@ class wp_internal_reservations {
 			$wpdb->query("
 				CREATE TABLE `".$wpdb->prefix."internal_reservations` (
 				  `id` int(11) NOT NULL AUTO_INCREMENT,
-				  `calendar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-				  `user` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+				  `calendar` varchar(255) DEFAULT NULL,
+				  `user` varchar(255) DEFAULT NULL,
 				  `from` datetime DEFAULT NULL,
 				  `until` datetime DEFAULT NULL,
-				  `title` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+				  `title` text DEFAULT NULL,
 				  PRIMARY KEY (`id`)
 				) ENGINE=InnoDB ".$wpdb->get_charset_collate().";
 			");
+
 		}
+
+		if(!in_array($wpdb->prefix."wpir_log", $wpdb->get_col("SHOW TABLES;"))) {
+
+			$wpdb->query("
+				CREATE TABLE `".$wpdb->prefix."wpir_log` (
+				  `tds` timestamp NOT NULL DEFAULT current_timestamp(),
+				  `user` varchar(255) NOT NULL,
+				  `calendar` varchar(255) DEFAULT NULL,
+				  `itemId` int(11) DEFAULT NULL,
+				  `event` varchar(255) DEFAULT NULL,
+				  `meta` text DEFAULT NULL,
+				  PRIMARY KEY (`tds`,`user`)
+				) ENGINE=InnoDB ".$wpdb->get_charset_collate().";
+			");
+
+		}
+
 	}
 
 	//register CSS and javascript
@@ -227,23 +246,35 @@ class wp_internal_reservations {
 						array("id" => $id)
 					);
 
+					$this->log("delete", array(
+						"id" => $id,
+						"user" => $current_user->user_login,
+						"calendar" => $data["calendar"]
+					));
+
 				} else {
 
 					//when checking for overlap exclude the ID we are currently editing
 					if(!$this->checkOverlap($data["calendar"], $from, $until, $id)) {
 
 						$success = true;
+						$insertData = array(
+							"calendar" => $data["calendar"],
+							"title" => $data["title"],
+							"from" => date("Y-m-d H:i:s", $from),
+							"until" => date("Y-m-d H:i:s", $until)
+						);
+
 						//do not replace username on edit
 						$wpdb->update(
 							$wpdb->prefix."internal_reservations",
-							array(
-								"calendar" => $data["calendar"],
-								"title" => $data["title"],
-								"from" => date("Y-m-d H:i:s", $from),
-								"until" => date("Y-m-d H:i:s", $until)
-							),
+							$insertData,
 							array("id" => $id)
 						);
+
+						$insertData["id"] = $id;
+						$insertData["user"] = $current_user->user_login;
+						$this->log("modify", $insertData);
 
 					} else {
 						$overlap = true;
@@ -261,16 +292,22 @@ class wp_internal_reservations {
 
 			if(!$this->checkOverlap($data["calendar"], $from, $until)) {
 				$success = true;
+				$insertData = array(
+					"calendar" => $data["calendar"],
+					"user" => $current_user->user_login,
+					"title" => $data["title"],
+					"from" => date("Y-m-d H:i:s", $from),
+					"until" => date("Y-m-d H:i:s", $until)
+				);
+
 				$wpdb->insert(
 					$wpdb->prefix."internal_reservations",
-					array(
-						"calendar" => $data["calendar"],
-						"user" => $current_user->user_login,
-						"title" => $data["title"],
-						"from" => date("Y-m-d H:i:s", $from),
-						"until" => date("Y-m-d H:i:s", $until)
-					)
+					$insertData
 				);
+
+				$insertData["id"] = $wpdb->insert_id;
+				$this->log("add", $insertData);
+
 			} else {
 				$overlap = true;
 			}
@@ -301,6 +338,37 @@ class wp_internal_reservations {
 			date("Y-m-d H:i:s", $until),
 			date("Y-m-d H:i:s", $from)
 		))) > 0);
+	}
+
+	private function log($event, $data) {
+		global $wpdb;
+
+		$insertData = array(
+			"user" => $data["user"],
+			"calendar" => $data["calendar"],
+			"itemId" => $data["id"],
+			"event" => $event
+		);
+
+		unset($data["user"]);
+		unset($data["calendar"]);
+		unset($data["id"]);
+		$insertData["meta"] = json_encode($data);
+
+		$wpdb->insert(
+			$wpdb->prefix."wpir_log",
+			$insertData
+		);
+
+	}
+
+	private function logMaintenence() {
+		global $wpdb;
+
+		$wpdb->query("
+			DELETE FROM `".$wpdb->prefix."wpir_log` 
+			 WHERE `tds` < DATE_SUB(NOW(), INTERVAL 1 YEAR)
+		");
 	}
 
 	//render calendar
