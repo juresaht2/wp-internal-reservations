@@ -32,7 +32,45 @@ class wp_internal_reservations {
 	//shortcode registration
 	function register() {
 		add_shortcode('internal-reservations', array($this, 'render'));
+		add_action('admin_menu', array($this, 'admin_setup'));
 		$this->logMaintenence();
+	}
+
+	function admin_setup() {
+		add_menu_page(
+			'Internal reservations', 
+			'Internal reservations', 
+			'manage_options', 
+			'wpir', 
+			array($this, 'admin')
+		);
+	}
+
+	function admin() {
+		?>
+		<table>
+			<thead>
+				<tr>
+					<th>Čas</th>
+					<th>Uporabnik</th>
+					<th>Rezervacija</th>
+					<th>Sprememba</th>
+					<th>Podatki</th>
+				</tr>
+			</thead>
+			<tbody style="text-align: center;">
+				<?php foreach($this->readLog() as $e) { ?>
+				<tr>
+					<td><?php echo date("j. n. Y H:i", $e["tds"]); ?></td>
+					<td><?php echo $e["user"]; ?></td>
+					<td><?php echo $e["itemId"]; ?></td>
+					<td><?php echo $e["event"]; ?></td>
+					<td><?php echo htmlspecialchars(print_r($e["meta"])); ?></td>
+				</tr>
+				<?php } ?>
+			</tbody>
+		</table>
+		<?php
 	}
 
 	function activate() {
@@ -360,6 +398,34 @@ class wp_internal_reservations {
 			$insertData
 		);
 
+	}
+
+	private function readLog($id = 0) {
+		global $wpdb;
+
+		if($id > 0) {
+			$sql = $wpdb->prepare("
+				SELECT * FROM `".$wpdb->prefix."wpir_log`
+				 WHERE `id` = %d
+				 ORDER BY `tds` DESC
+				 LIMIT 10000
+			", array($id));
+		} else {
+			$sql = "
+				SELECT * FROM `".$wpdb->prefix."wpir_log`
+				 ORDER BY `tds` DESC
+				 LIMIT 10000
+			";
+		}
+
+		$out = array();
+		foreach($wpdb->get_results($sql, ARRAY_A) as $e) {
+			$e["tds"] = strtotime($e["tds"]);
+			$e["meta"] = json_decode($e["meta"], true);
+			$out[] = $e;
+		}
+
+		return $out;
 	}
 
 	private function logMaintenence() {
