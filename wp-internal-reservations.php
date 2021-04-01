@@ -40,7 +40,7 @@ class wp_internal_reservations {
 		add_menu_page(
 			'Internal reservations', 
 			'Internal reservations', 
-			'manage_options', 
+			'edit_pages', 
 			'wpir', 
 			array($this, 'admin')
 		);
