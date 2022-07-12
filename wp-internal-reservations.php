@@ -55,6 +55,7 @@ class wp_internal_reservations {
 					<th>Uporabnik</th>
 					<th>Rezervacija</th>
 					<th>Sprememba</th>
+					<th>Koledar</th>
 					<th>Podatki</th>
 				</tr>
 			</thead>
@@ -65,6 +66,7 @@ class wp_internal_reservations {
 					<td><?php echo $e["user"]; ?></td>
 					<td><?php echo $e["itemId"]; ?></td>
 					<td><?php echo $e["event"]; ?></td>
+					<td><?php echo $e["calendar"]; ?></td>
 					<td><?php echo htmlspecialchars(print_r($e["meta"])); ?></td>
 				</tr>
 				<?php } ?>
@@ -178,7 +180,8 @@ class wp_internal_reservations {
 
 			$title = $event["title"].
 				" od ".date("j. n. Y H:i", strtotime($event["from"])).
-				" do ".date("j. n. Y H:i", strtotime($event["until"]));
+				" do ".date("j. n. Y H:i", strtotime($event["until"])).
+				" rezerviral/a ".$event["user"];
 
 			$out[] = array(
 				'id' => $event["id"],
@@ -221,7 +224,7 @@ class wp_internal_reservations {
 			$title = $data["title"];
 			$from = strtotime($data["from"]);
 			$until = strtotime($data["until"]);
-			$editable = ($data["user"] == $current_user->user_login || current_user_can('administrator'));
+			$editable = ($data["user"] == $current_user->user_login || current_user_can('urednik_rezervacij'));
 
 		} else {
 
@@ -273,7 +276,7 @@ class wp_internal_reservations {
 				 LIMIT 1
 			", array($id)));
 
-			if($existing_username == $current_user->user_login || current_user_can('administrator')) {
+			if($existing_username == $current_user->user_login || current_user_can('urednik_rezervacij')) {
 
 				if(trim($data["title"]) == "") {
 					//empty title means delete
@@ -369,7 +372,7 @@ class wp_internal_reservations {
 			  FROM `".$wpdb->prefix."internal_reservations`
 			 WHERE `calendar` = %s
 			   AND `id` != %d
-			   AND (`from` <= %s AND `until` >= %s)
+			   AND (`from` < %s AND `until` > %s)
 		", array(
 			$calendar,
 			$exclude,
