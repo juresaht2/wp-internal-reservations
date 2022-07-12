@@ -12,10 +12,6 @@ It is provided in the hopes that it will be useful and perhaps expanded upon, bu
 
 Things which could be added.
 
-### Explicit credit
-
-This plugin contains code from various open source projects, complete the documentation of credit.
-
 ### Convert / publish on Wordpress Plugins
 
 https://developer.wordpress.org/plugins/wordpress-org/
@@ -27,3 +23,14 @@ https://stackoverflow.com/a/12251845/2897386
 Add a view that allows multiple calendars to be viewed as one.
 
 If a reservation is made, provide the option for the user to choose which callendar to make it to.
+
+## Credits
+
+This plugin is based on the Bootstrap Calendar by Serhioromano:
+https://github.com/Serhioromano/bootstrap-calendar
+
+This in turn is based on Bootstrap by Twitter:
+https://getbootstrap.com/
+
+It also uses Underscore.js by Jashkenas:
+https://underscorejs.org/
