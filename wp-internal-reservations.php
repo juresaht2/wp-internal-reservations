@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Wordpress internal reservations
-Plugin URI: https://origin.git.t-2.local/sit/wp-internal-reservations
+Plugin URI: https://github.com/juresaht2/wp-internal-reservations
 description: Wordpress plugin with a reservation calendar (to replace SharePint).
 Version: 1.0
 Author: Jure Sah (T-2 d.o.o.)
